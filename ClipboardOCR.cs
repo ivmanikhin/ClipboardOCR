@@ -22,9 +22,14 @@ namespace ClipboardOCR
         {
             string lang = args[0].ToString();
             var bitmap = (Bitmap)Clipboard.GetImage();
-            Bitmap horBitmap = TiltMessage(new Bitmap(bitmap));
-            string result = XpsToText(horBitmap, lang);
-            Clipboard.SetText(result);
+            if (bitmap != null)
+            {
+                Bitmap horBitmap = TiltMessage(new Bitmap(bitmap));
+                string result = XpsToText(horBitmap, lang);
+                Clipboard.SetText(result);
+            }
+            else
+                MessageBox.Show("В буфере обмена нет картинки");
         }
 
 
@@ -45,7 +50,7 @@ namespace ClipboardOCR
                 }
 
             }
-            return messageText;
+            return Regex.Replace(messageText, @"\s+|\t+|\n+|\r+", " ");
 
             //File.WriteAllText(@"F:\TEMP\TEST\result_" + i.ToString() + ".txt", Regex.Replace(messageText, @"\s+|\t+|\n+|\r+", " "));
             
@@ -58,7 +63,9 @@ namespace ClipboardOCR
             Bitmap croppedPic = new Bitmap(inputPic.Width * 2 / 3, inputPic.Height);
             Bitmap horisontalPic = new Bitmap(inputPic.Width, inputPic.Height);
             int colImageHeight = 640;
-            Bitmap shrinkPic = new Bitmap(colImageHeight * 2 / 3, colImageHeight);
+            if (inputPic.Height < 640)
+                colImageHeight = inputPic.Height;
+            Bitmap shrinkPic = new Bitmap(colImageHeight * croppedPic.Width / croppedPic.Height, colImageHeight);
             int brightness = 255 * 3;
             int[] brightnessGrad = new int[colImageHeight];
             string log = "";
